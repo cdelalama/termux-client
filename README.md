@@ -68,3 +68,30 @@ Result:
 
 - SSH asks for passphrase every time:
   Use ssh-agent/keychain on the VM, or switch VM GitHub auth key to no-passphrase.
+
+## New phone bootstrap (fast)
+
+### One-liner install (Android Termux)
+  pkg install -y git openssh && \
+  cd ~ && rm -rf termux-client && \
+  git clone https://github.com/cdelalama/termux-client.git && \
+  cd termux-client && \
+  chmod +x install.sh && \
+  ./install.sh
+
+### SSH key (Android Termux)
+Recommended: one key per phone.
+
+  pkg install -y openssh
+  ssh-keygen -t ed25519 -a 64 -f ~/.ssh/id_ed25519
+  cat ~/.ssh/id_ed25519.pub
+
+Add the public key to dev-vm (server side):
+  echo 'ssh-ed25519 AAAA...' >> ~/.ssh/authorized_keys
+
+Verify:
+  ssh USER@DEV_VM_IP
+
+### Use
+  np
+Speak a repo name (e.g. android-007) and press Enter.
