@@ -1,0 +1,26 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
+
+CFG="$HOME/.config/termux-client/config"
+test -f "$CFG" || { echo "Missing config: $CFG"; exit 1; }
+source "$CFG"
+
+LOCAL_PORT="${LOCAL_PORT:-18080}"
+REMOTE_PORT="${REMOTE_PORT:-8080}"
+PIDFILE="$HOME/.cache/termux-client/vscode-tunnel.pid"
+
+mkdir -p "$(dirname "$PIDFILE")"
+
+if test -f "$PIDFILE" && kill -0 "$(cat "$PIDFILE")" 2>/dev/null; then
+  :
+else
+  rm -f "$PIDFILE"
+  ssh -N -L "${LOCAL_PORT}:127.0.0.1:${REMOTE_PORT}" "${HOST}" &
+  echo $! > "$PIDFILE"
+  sleep 0.2
+  kill -0 "$(cat "$PIDFILE")" 2>/dev/null || { echo "Tunnel failed"; rm -f "$PIDFILE"; exit 1; }
+fi
+
+termux-open-url "http://127.0.0.1:${LOCAL_PORT}"
+echo "Tunnel OK: http://127.0.0.1:${LOCAL_PORT}"
+echo "Stop: kill $(cat "$PIDFILE")"
