@@ -8,7 +8,7 @@ CFG_FILE="$CFG_DIR/config"
 mkdir -p "$CFG_DIR"
 if [[ ! -f "$CFG_FILE" ]]; then
   cat > "$CFG_FILE" <<'CFG'
-HOST=USER@DEV_VM_IP
+HOST=USER
 CFG
   echo "Created $CFG_FILE"
 fi
