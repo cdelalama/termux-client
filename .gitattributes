@@ -1,0 +1,4 @@
+# Force LF for shell scripts (Termux shebang breaks with CRLF)
+*.sh text eol=lf
+bin/* text eol=lf
+install.sh text eol=lf
