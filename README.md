@@ -76,6 +76,8 @@ Optional:
 - LOCAL_PORT=18080
 - REMOTE_PORT=8080
 
+Then run: doctor-phone
+
 ### 4) Launch (2 taps)
 After running bootstrap-phone:
 
@@ -111,6 +113,7 @@ Result:
 
     vscode-web
 ## Troubleshooting
+Run: doctor-phone
 
 ### TMUX shortcut opens but SSH times out
 - You are not on LAN and WireGuard is off, or routing is wrong.

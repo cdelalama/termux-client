@@ -1,0 +1,53 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
+
+CFG="$HOME/.config/termux-client/config"
+fail=0
+
+say_ok(){ echo "OK  $*"; }
+say_no(){ echo "FAIL $*"; fail=1; }
+say_w(){  echo "WARN $*"; }
+
+if [[ ! -f "$CFG" ]]; then
+  say_no "missing config: $CFG (run ./install.sh)"
+  exit 1
+fi
+# shellcheck disable=SC1090
+source "$CFG"
+
+if [[ -z "${HOST:-}" || "$HOST" == *DEV_VM_IP* || "$HOST" == "USER" ]]; then
+  say_no "HOST not set (edit $CFG)"
+else
+  say_ok "config HOST=$HOST"
+fi
+
+if ssh -o BatchMode=yes -o ConnectTimeout=5 "$HOST" 'echo OK_SSH' >/dev/null 2>&1; then
+  say_ok "ssh dev-vm"
+else
+  say_no "ssh dev-vm (WireGuard off? not on LAN? routing? host wrong?)"
+fi
+
+if ssh -o BatchMode=yes -o ConnectTimeout=5 -T git@github.com >/dev/null 2>&1; then
+  say_ok "github ssh"
+else
+  say_w "github ssh (add ~/.ssh/id_ed25519.pub to GitHub SSH keys)"
+fi
+
+if [[ -x "$HOME/.termux/widget/dynamic_shortcuts/VSCODE" && -x "$HOME/.termux/widget/dynamic_shortcuts/TMUX" ]]; then
+  say_ok "termux-widget shortcuts"
+else
+  say_w "termux-widget shortcuts missing (run bootstrap-phone)"
+fi
+
+if pgrep -a ssh 2>/dev/null | grep -q '18080:127.0.0.1:8080'; then
+  say_ok "vscode tunnel"
+else
+  say_w "vscode tunnel not running (run vscode-web)"
+fi
+
+echo
+echo "NOTES:"
+echo "- If TMUX shortcut opens but doesn't start a terminal: enable Android 'Display over other apps' for Termux."
+echo "- If ssh dev-vm fails: check WireGuard tunnel and AllowedIPs/routing."
+
+exit "$fail"

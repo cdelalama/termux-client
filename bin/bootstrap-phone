@@ -51,3 +51,4 @@ echo
 echo "USO:"
 echo "- Long press Termux:Widget -> VSCODE / TMUX"
 echo "- Termux: np"
+echo "- Debug: doctor-phone"

@@ -21,6 +21,6 @@ fi
 install -m 755 bin/np "$PREFIX/bin/np"
 install -m 755 bin/vscode-web "$PREFIX/bin/vscode-web"
 install -m 755 bin/bootstrap-phone "$PREFIX/bin/bootstrap-phone"
+install -m 755 bin/doctor-phone "$PREFIX/bin/doctor-phone"
 
-echo "Installed: np, vscode-web, bootstrap-phone"
-echo "Config: $CFG_FILE"
+echo "Installed: np, vscode-web, bootstrap-phone, doctor-phone"
