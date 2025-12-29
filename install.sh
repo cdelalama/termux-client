@@ -14,6 +14,7 @@ CFG
 fi
 
 install -m 755 bin/np "$PREFIX/bin/np"
+install -m 755 bin/vscode-web "$PREFIX/bin/vscode-web"
 
-echo "Installed: np"
+echo "Installed: np, vscode-web"
 echo "Config: $CFG_FILE"
