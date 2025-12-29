@@ -1,0 +1,53 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
+
+CFG_FILE="$HOME/.config/termux-client/config"
+
+echo "[1] asegurar config"
+if [[ ! -f "$CFG_FILE" ]]; then
+  echo "Missing $CFG_FILE. Ejecuta ./install.sh primero."
+  exit 1
+fi
+
+echo "[2] generar SSH key si falta"
+mkdir -p "$HOME/.ssh"
+chmod 700 "$HOME/.ssh"
+if [[ ! -f "$HOME/.ssh/id_ed25519" ]]; then
+  ssh-keygen -t ed25519 -N "" -f "$HOME/.ssh/id_ed25519" >/dev/null
+  echo "CREATED ~/.ssh/id_ed25519"
+else
+  echo "OK ~/.ssh/id_ed25519"
+fi
+
+echo "[3] crear shortcuts (Termux:Widget)"
+mkdir -p "$HOME/.shortcuts" "$HOME/.termux/widget/dynamic_shortcuts"
+
+cat > "$HOME/.shortcuts/VSCODE" <<'SH'
+#!/data/data/com.termux/files/usr/bin/bash
+exec vscode-web
+SH
+
+cat > "$HOME/.shortcuts/TMUX" <<'SH'
+#!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
+CFG="$HOME/.config/termux-client/config"
+test -f "$CFG" || { echo "Missing config: $CFG"; exit 1; }
+source "$CFG"
+exec ssh -tt "$HOST" 'tmux new-session -A -s main'
+SH
+
+chmod +x "$HOME/.shortcuts/VSCODE" "$HOME/.shortcuts/TMUX"
+cp -f "$HOME/.shortcuts/VSCODE" "$HOME/.termux/widget/dynamic_shortcuts/VSCODE"
+cp -f "$HOME/.shortcuts/TMUX"   "$HOME/.termux/widget/dynamic_shortcuts/TMUX"
+
+echo
+echo "MANUAL (no automatizable):"
+echo "A) GitHub -> Settings -> SSH and GPG keys -> New SSH key:"
+cat "$HOME/.ssh/id_ed25519.pub"
+echo
+echo "B) Android -> Apps -> Termux -> Display over other apps -> Allow"
+echo "C) WireGuard -> activa tunnel si no estás en LAN"
+echo
+echo "USO:"
+echo "- Long press Termux:Widget -> VSCODE / TMUX"
+echo "- Termux: np"
