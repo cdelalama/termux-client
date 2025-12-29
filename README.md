@@ -10,6 +10,7 @@ SwiftKey (typing + Google voice dictation)
   -> SSH (keys only) to dev-vm (Ubuntu on QNAP)
   -> newproj (server tool) creates GitHub repos from template
   -> tmux session per project on dev-vm
+  -> code-server (VS Code in browser) via SSH tunnel
 
 Template:
 - cdelalama/LLM-DocKit
@@ -17,81 +18,125 @@ Template:
 Server tool:
 - /usr/local/bin/newproj (installed from cdelalama/dev-tools)
 
-Client tool:
-- np (installed from this repo)
+Client tools:
+- np (create repo + attach tmux project session)
+- vscode-web (SSH tunnel + open code-server in mobile browser)
+- bootstrap-phone (new phone setup helper)
 
 ## Install (Android Termux)
 
 This repo is public, so clone via HTTPS:
 
-  pkg install -y git openssh
-  cd ~
-  rm -rf termux-client
-  git clone https://github.com/cdelalama/termux-client.git
-  cd termux-client
-  chmod +x install.sh
-  ./install.sh
+    pkg install -y git openssh
+    cd ~
+    rm -rf termux-client
+    git clone https://github.com/cdelalama/termux-client.git
+    cd termux-client
+    ./install.sh
 
-Config:
-  ~/.config/termux-client/config
+Config file:
+- ~/.config/termux-client/config
 
-## Bootstrap on a new phone (fast)
+## New phone in 10 minutes
 
-1) Install Termux (F-Droid) + WireGuard.
-2) Restore or generate an SSH key in Termux.
-3) Ensure the Termux public key is present on dev-vm: ~/.ssh/authorized_keys
-4) Install termux-client and run `np`.
+### 0) Installs (apps)
+Install these apps first:
+- Termux (from F-Droid)
+- Termux:Widget (from F-Droid)
+- WireGuard (Play Store / system)
+
+### 1) One-liner (Termux)
+
+    pkg install -y git openssh && \
+    cd ~ && rm -rf termux-client && \
+    git clone https://github.com/cdelalama/termux-client.git && \
+    cd termux-client && \
+    ./install.sh && \
+    bootstrap-phone
+
+### 2) Manual steps (cannot be automated)
+A) GitHub SSH key (for pushing from phone):
+- Copy the printed ~/.ssh/id_ed25519.pub
+- GitHub -> Settings -> SSH and GPG keys -> New SSH key
+
+B) Android permission (for launching TMUX from shortcuts):
+- Settings -> Apps -> Termux -> Display over other apps -> Allow
+
+C) Network:
+- If you are not on LAN, enable your WireGuard tunnel
+
+### 3) Configure host (Termux)
+Edit:
+- ~/.config/termux-client/config
+
+Set:
+- HOST=cdelalama@10.0.0.110 (or your dev-vm IP)
+
+Optional:
+- LOCAL_PORT=18080
+- REMOTE_PORT=8080
+
+### 4) Launch (2 taps)
+After running bootstrap-phone:
+
+- Long press Termux:Widget -> VSCODE
+  - opens code-server via SSH tunnel at http://127.0.0.1:18080
+
+- Long press Termux:Widget -> TMUX
+  - SSH + tmux new-session -A -s main
+### 5) Create a project
+Run:
+
+    np
+
+Prompt:
+- Repo name:
+
+Speak or type the repo name.
+Example:
+- android-007
+
+Result:
+- Creates cdelalama/<repo> from template cdelalama/LLM-DocKit if missing
+- Clones into ~/src/<repo> on dev-vm if missing
+- Attaches/creates tmux session <repo> on dev-vm
 
 ## Usage
 
-Run:
-  np
+### Create / open a project tmux session
 
-Prompt:
-  Repo name:
+    np
 
-Speak or type:
-  android-005
+### Open VS Code in browser (mobile)
 
-Result:
-- Creates `cdelalama/<repo>` from template `cdelalama/LLM-DocKit` if missing
-- Clones into `~/src/<repo>` on dev-vm if missing
-- Attaches/creates tmux session `<repo>` on dev-vm
-
+    vscode-web
 ## Troubleshooting
 
-- Permission denied (publickey):
-  Add your Termux public key to dev-vm authorized_keys.
+### TMUX shortcut opens but SSH times out
+- You are not on LAN and WireGuard is off, or routing is wrong.
+- Quick check: from Termux run:
 
-- newproj: command not found:
-  Ensure /usr/local/bin/newproj is installed on dev-vm (run dev-tools install.sh).
+    ssh cdelalama@10.0.0.110
 
-- SSH asks for passphrase every time:
-  Use ssh-agent/keychain on the VM, or switch VM GitHub auth key to no-passphrase.
+### GitHub push asks for username/token
+- Your repo remote is HTTPS.
+- Fix:
 
-## New phone bootstrap (fast)
+    git remote set-url origin git@github.com:cdelalama/termux-client.git
+    ssh -T git@github.com
 
-### One-liner install (Android Termux)
-  pkg install -y git openssh && \
-  cd ~ && rm -rf termux-client && \
-  git clone https://github.com/cdelalama/termux-client.git && \
-  cd termux-client && \
-  chmod +x install.sh && \
-  ./install.sh
+### Permission denied (publickey) when pushing to GitHub
+- Add your phone public key to GitHub:
+  - GitHub -> Settings -> SSH and GPG keys -> New SSH key
+  - paste ~/.ssh/id_ed25519.pub
 
-### SSH key (Android Termux)
-Recommended: one key per phone.
+### newproj: command not found on dev-vm
+- Install server tooling on dev-vm from cdelalama/dev-tools so /usr/local/bin/newproj exists.
 
-  pkg install -y openssh
-  ssh-keygen -t ed25519 -a 64 -f ~/.ssh/id_ed25519
-  cat ~/.ssh/id_ed25519.pub
+### VS Code does not open
+- Ensure code-server is running on dev-vm and bound to localhost:
+  - systemctl status code-server@cdelalama
+  - ss -ltnp | grep :8080 should show 127.0.0.1:8080
+- Ensure tunnel exists (Termux):
 
-Add the public key to dev-vm (server side):
-  echo 'ssh-ed25519 AAAA...' >> ~/.ssh/authorized_keys
-
-Verify:
-  ssh USER@DEV_VM_IP
-
-### Use
-  np
-Speak a repo name (e.g. android-007) and press Enter.
+    pgrep -a ssh | grep 18080:127.0.0.1:8080
