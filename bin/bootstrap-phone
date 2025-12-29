@@ -3,13 +3,13 @@ set -euo pipefail
 
 CFG_FILE="$HOME/.config/termux-client/config"
 
-echo "[1] asegurar config"
+echo "[1] ensure config"
 if [[ ! -f "$CFG_FILE" ]]; then
-  echo "Missing $CFG_FILE. Ejecuta ./install.sh primero."
+  echo "Missing $CFG_FILE. Run ./install.sh first."
   exit 1
 fi
 
-echo "[2] generar SSH key si falta"
+echo "[2] generate SSH key if missing"
 mkdir -p "$HOME/.ssh"
 chmod 700 "$HOME/.ssh"
 if [[ ! -f "$HOME/.ssh/id_ed25519" ]]; then
@@ -19,7 +19,7 @@ else
   echo "OK ~/.ssh/id_ed25519"
 fi
 
-echo "[3] crear shortcuts (Termux:Widget)"
+echo "[3] create shortcuts (Termux:Widget)"
 mkdir -p "$HOME/.shortcuts" "$HOME/.termux/widget/dynamic_shortcuts"
 
 cat > "$HOME/.shortcuts/VSCODE" <<'SH'
@@ -41,14 +41,14 @@ cp -f "$HOME/.shortcuts/VSCODE" "$HOME/.termux/widget/dynamic_shortcuts/VSCODE"
 cp -f "$HOME/.shortcuts/TMUX"   "$HOME/.termux/widget/dynamic_shortcuts/TMUX"
 
 echo
-echo "MANUAL (no automatizable):"
+echo "MANUAL (cannot be automated):"
 echo "A) GitHub -> Settings -> SSH and GPG keys -> New SSH key:"
 cat "$HOME/.ssh/id_ed25519.pub"
 echo
 echo "B) Android -> Apps -> Termux -> Display over other apps -> Allow"
-echo "C) WireGuard -> activa tunnel si no estás en LAN"
+echo "C) WireGuard: enable the tunnel if you are not on LAN"
 echo
-echo "USO:"
+echo "USAGE:"
 echo "- Long press Termux:Widget -> VSCODE / TMUX"
 echo "- Termux: np"
 echo "- Debug: doctor-phone"
