@@ -8,9 +8,14 @@ CFG_FILE="$CFG_DIR/config"
 mkdir -p "$CFG_DIR"
 if [[ ! -f "$CFG_FILE" ]]; then
   cat > "$CFG_FILE" <<'CFG'
-HOST=USER
+# Edita esto:
+HOST=cdelalama@DEV_VM_IP
+
+# Opcional:
+LOCAL_PORT=18080
+REMOTE_PORT=8080
 CFG
-  echo "Created $CFG_FILE"
+  echo "Created $CFG_FILE (edit DEV_VM_IP)"
 fi
 
 install -m 755 bin/np "$PREFIX/bin/np"
