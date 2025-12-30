@@ -1,0 +1,28 @@
+#!/data/data/com.termux/files/usr/bin/bash
+set -euo pipefail
+
+CFG_FILE="$HOME/.config/termux-client/config"
+source "$CFG_FILE"
+
+# Remote workspace root (VM)
+WORKSPACE_ROOT_REMOTE="${WORKSPACE_ROOT_REMOTE:-/home/cdelalama/src}"
+
+REPOS="$(
+  ssh "$HOST" "bash -lc 'cd \"${WORKSPACE_ROOT_REMOTE}\" && for d in */.git; do echo \${d%/.git}; done 2>/dev/null | sort'" \
+  || true
+)"
+
+if [[ -z "$REPOS" ]]; then
+  echo "No repos found in ${WORKSPACE_ROOT_REMOTE} on remote."
+  echo "Tip: run np to create a new project."
+  exit 2
+fi
+
+CHOICE="$(printf '%s\n' "$REPOS" | fzf --prompt='Open repo> ' --height=40% --reverse)"
+[[ -n "${CHOICE:-}" ]] || exit 0
+
+# 1) abre VS Code web (no bloquea)
+vscode-web "${WORKSPACE_ROOT_REMOTE}/${CHOICE}" >/dev/null 2>&1 || true
+
+# 2) entra a tmux con agentes (bloquea)
+exec ssh -t "$HOST" "bash -lc 'newproj ${CHOICE} private --agents'"

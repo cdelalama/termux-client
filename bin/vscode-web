@@ -21,6 +21,12 @@ else
   kill -0 "$(cat "$PIDFILE")" 2>/dev/null || { echo "Tunnel failed"; rm -f "$PIDFILE"; exit 1; }
 fi
 
-termux-open-url "http://127.0.0.1:${LOCAL_PORT}"
-echo "Tunnel OK: http://127.0.0.1:${LOCAL_PORT}"
+URL="http://127.0.0.1:${LOCAL_PORT}"
+if [[ -n "${1:-}" ]]; then
+  # code-server acepta folder vía query param (si no, cae a home y tú eliges)
+  URL="${URL}/?folder=${1}"
+fi
+
+termux-open-url "$URL"
+echo "Tunnel OK: $URL"
 echo "Stop: kill $(cat "$PIDFILE")"

@@ -10,4 +10,4 @@ NAME="$(echo "$NAME" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9 -]//g; s/
 [[ -n "$NAME" ]] || { echo "Empty name"; exit 2; }
 
 # Run on remote via login shell to load PATH (.bashrc)
-exec ssh -t "$HOST" "bash -lc 'newproj $NAME private --tmux'"
+exec ssh -t "$HOST" "bash -lc 'newproj $NAME private --agents'"
