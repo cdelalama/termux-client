@@ -19,15 +19,16 @@ Server tool:
 - /usr/local/bin/newproj (installed from cdelalama/dev-tools)
 
 Client tools:
-- np (create repo + attach tmux project session)
-- vscode-web (SSH tunnel + open code-server in mobile browser)
+- np (create new project: newproj --agents)
+- op (pick existing project via fzf, opens VS Code web + tmux agents)
+- vscode-web (SSH tunnel + open code-server in mobile browser; optional folder arg)
 - bootstrap-phone (new phone setup helper)
 
 ## Install (Android Termux)
 
 This repo is public, so clone via HTTPS:
 
-    pkg install -y git openssh
+    pkg install -y git openssh coreutils fzf
     cd ~
     rm -rf termux-client
     git clone https://github.com/cdelalama/termux-client.git
@@ -47,7 +48,7 @@ Install these apps first:
 
 ### 1) One-liner (Termux)
 
-    pkg install -y git openssh && \
+    pkg install -y git openssh coreutils fzf && \
     cd ~ && rm -rf termux-client && \
     git clone https://github.com/cdelalama/termux-client.git && \
     cd termux-client && \
@@ -79,31 +80,41 @@ Optional:
 Then run: doctor-phone
 
 ### 4) Launch (2 taps)
+### 4) Launch (2 taps)
 After running bootstrap-phone:
+
+- Long press Termux:Widget -> OP
+  - fzf picker over projects in WORKSPACE_ROOT_REMOTE
+  - opens VS Code web + attaches tmux proj_<repo> with CLOUD+CODEX
+
+- Long press Termux:Widget -> NP
+  - creates new project and attaches tmux proj_<repo> with CLOUD+CODEX
 
 - Long press Termux:Widget -> VSCODE
   - opens code-server via SSH tunnel at http://127.0.0.1:18080
 
 - Long press Termux:Widget -> TMUX
   - SSH + tmux new-session -A -s main
+
 ### 5) Create a project
 Run:
 
     np
 
-Prompt:
-- Repo name:
-
-Speak or type the repo name.
-Example:
-- android-007
-
 Result:
 - Creates cdelalama/<repo> from template cdelalama/LLM-DocKit if missing
-- Clones into ~/src/<repo> on dev-vm if missing
-- Attaches/creates tmux session <repo> on dev-vm
+- Clones into ~/src/projects/<repo> on dev-vm (via BASE_DIR)
+- Attaches/creates tmux session proj_<repo> with CLOUD+CODEX
 
 ## Usage
+
+### Open an existing project (picker + VS Code + tmux)
+
+    op
+
+### Open an existing project (picker + VS Code + tmux)
+
+    op
 
 ### Create / open a project tmux session
 

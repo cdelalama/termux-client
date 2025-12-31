@@ -3,10 +3,20 @@ set -euo pipefail
 
 CFG_FILE="$HOME/.config/termux-client/config"
 
+echo "[0] packages (required)"
+pkg update -y
+pkg install -y coreutils fzf >/dev/null
+
 echo "[1] ensure config"
 if [[ ! -f "$CFG_FILE" ]]; then
   echo "Missing $CFG_FILE. Run ./install.sh first."
   exit 1
+fi
+
+# ensure remote workspace root is set (local config, not in git)
+if ! grep -q '^WORKSPACE_ROOT_REMOTE=' "$CFG_FILE"; then
+  echo 'WORKSPACE_ROOT_REMOTE=/home/cdelalama/src/projects' >> "$CFG_FILE"
+  echo "Added WORKSPACE_ROOT_REMOTE to $CFG_FILE"
 fi
 
 echo "[2] generate SSH key if missing"
@@ -22,23 +32,35 @@ fi
 echo "[3] create shortcuts (Termux:Widget)"
 mkdir -p "$HOME/.shortcuts" "$HOME/.termux/widget/dynamic_shortcuts"
 
-cat > "$HOME/.shortcuts/VSCODE" <<'SH'
+cat > "$HOME/.shortcuts/VSCODE" <<'W1'
 #!/data/data/com.termux/files/usr/bin/bash
 exec vscode-web
-SH
+W1
 
-cat > "$HOME/.shortcuts/TMUX" <<'SH'
+cat > "$HOME/.shortcuts/TMUX" <<'W2'
 #!/data/data/com.termux/files/usr/bin/bash
 set -euo pipefail
 CFG="$HOME/.config/termux-client/config"
 test -f "$CFG" || { echo "Missing config: $CFG"; exit 1; }
 source "$CFG"
-exec ssh -tt "$HOST" 'tmux new-session -A -s main'
-SH
+exec ssh -tt "$HOST" "tmux new-session -A -s main"
+W2
 
-chmod +x "$HOME/.shortcuts/VSCODE" "$HOME/.shortcuts/TMUX"
+cat > "$HOME/.shortcuts/OP" <<'W3'
+#!/data/data/com.termux/files/usr/bin/bash
+exec op
+W3
+
+cat > "$HOME/.shortcuts/NP" <<'W4'
+#!/data/data/com.termux/files/usr/bin/bash
+exec np
+W4
+
+chmod +x "$HOME/.shortcuts/VSCODE" "$HOME/.shortcuts/TMUX" "$HOME/.shortcuts/OP" "$HOME/.shortcuts/NP"
 cp -f "$HOME/.shortcuts/VSCODE" "$HOME/.termux/widget/dynamic_shortcuts/VSCODE"
 cp -f "$HOME/.shortcuts/TMUX"   "$HOME/.termux/widget/dynamic_shortcuts/TMUX"
+cp -f "$HOME/.shortcuts/OP"     "$HOME/.termux/widget/dynamic_shortcuts/OP"
+cp -f "$HOME/.shortcuts/NP"     "$HOME/.termux/widget/dynamic_shortcuts/NP"
 
 echo
 echo "MANUAL (cannot be automated):"
@@ -49,6 +71,7 @@ echo "B) Android -> Apps -> Termux -> Display over other apps -> Allow"
 echo "C) WireGuard: enable the tunnel if you are not on LAN"
 echo
 echo "USAGE:"
-echo "- Long press Termux:Widget -> VSCODE / TMUX"
-echo "- Termux: np"
+echo "- Long press Termux:Widget -> OP / NP / VSCODE / TMUX"
+echo "- OP: pick an existing project (fzf), opens VS Code web + tmux agents"
+echo "- NP: create new project (newproj --agents)"
 echo "- Debug: doctor-phone"
