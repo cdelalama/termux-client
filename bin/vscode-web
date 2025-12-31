@@ -22,9 +22,14 @@ else
 fi
 
 URL="http://127.0.0.1:${LOCAL_PORT}"
+# Preferencia:
+# 1) argumento explícito (np/op)
+# 2) DEFAULT_FOLDER en config
+# 3) fallback: code-server decide (último folder)
 if [[ -n "${1:-}" ]]; then
-  # code-server acepta folder vía query param (si no, cae a home y tú eliges)
   URL="${URL}/?folder=${1}"
+elif [[ -n "${DEFAULT_FOLDER:-}" ]]; then
+  URL="${URL}/?folder=${DEFAULT_FOLDER}"
 fi
 
 termux-open-url "$URL"

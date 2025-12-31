@@ -24,19 +24,28 @@ Client tools:
 - vscode-web (SSH tunnel + open code-server in mobile browser; optional folder arg)
 - bootstrap-phone (new phone setup helper)
 
+Notes:
+- `doctor-phone` checks GitHub SSH by matching output because `ssh -T git@github.com` may exit non-zero even when authentication succeeds.
+
 ## Install (Android Termux)
 
-This repo is public, so clone via HTTPS:
+This repo is public, but on the phone we use Git over SSH (no HTTPS tokens):
 
     pkg install -y git openssh coreutils fzf
     cd ~
     rm -rf termux-client
-    git clone https://github.com/cdelalama/termux-client.git
+    git clone git@github.com:cdelalama/termux-client.git
     cd termux-client
     ./install.sh
 
+SSH auth requirement:
+- ensure ~/.ssh/id_ed25519.pub is added in GitHub -> Settings -> SSH and GPG keys
+
 Config file:
 - ~/.config/termux-client/config
+
+Optional defaults:
+- DEFAULT_FOLDER: folder to open when running `vscode-web` without args (if unset, code-server may open last folder)
 
 ## New phone in 10 minutes
 
