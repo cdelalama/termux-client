@@ -158,7 +158,8 @@ Run: doctor-phone
 
 ### VS Code does not open
 - Ensure code-server is running on dev-vm and bound to localhost:
-  - systemctl status code-server@cdelalama
+  - pgrep -a code-server | head
+  - curl -sS -D - -o /dev/null http://127.0.0.1:8080/ | head
   - ss -ltnp | grep :8080 should show 127.0.0.1:8080
 - Ensure tunnel exists (Termux):
 
