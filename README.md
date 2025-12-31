@@ -46,6 +46,8 @@ Config file:
 
 Optional defaults:
 - DEFAULT_FOLDER: folder to open when running `vscode-web` without args (if unset, code-server may open last folder)
+- code-server remembers last opened folder in ~/.local/share/code-server/coder.json on the dev-vm (302 redirect). DEFAULT_FOLDER makes it deterministic.
+- Git policy: avoid force-push on main; prefer normal commits/merges so `git pull --ff-only` keeps working on phone/VM.
 
 ## New phone in 10 minutes
 
