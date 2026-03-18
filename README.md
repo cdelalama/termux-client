@@ -1,6 +1,20 @@
+<!-- doc-version: 0.2.0 -->
 # termux-client
 
 Android Termux client wrappers to drive the dev VM.
+
+## Current status
+
+This repo is the Android/mobile client layer in the wider `devenv` stack.
+
+Today it is useful and partially converged on the canonical core model:
+
+- `op` opens existing work through `devenv open <repo>`
+- `np` uses `newproj` for repo creation/bootstrap, then enters the canonical
+  `devenv` workspace
+- the old `newproj --agents` / `proj_*` mobile flow is no longer the default
+
+The repo is still a client layer. It does not own workspace semantics.
 
 ## Architecture / topology
 
@@ -8,8 +22,8 @@ SwiftKey (typing + Google voice dictation)
   -> Termux (Android)
   -> WireGuard (VPN)
   -> SSH (keys only) to dev-vm (Ubuntu on QNAP)
-  -> newproj (server tool) creates GitHub repos from template
-  -> tmux session per project on dev-vm
+  -> newproj (server tool) creates/clones repos when needed
+  -> devenv opens canonical dev_* tmux workspaces on dev-vm
   -> code-server (VS Code in browser) via SSH tunnel
 
 Template:
@@ -19,8 +33,8 @@ Server tool:
 - /usr/local/bin/newproj (installed from cdelalama/dev-tools)
 
 Client tools:
-- np (create new project: newproj --agents)
-- op (pick existing project via fzf, opens VS Code web + tmux agents)
+- np (create/bootstrap repo with newproj, then open canonical devenv workspace)
+- op (pick existing project via fzf, opens VS Code web + canonical devenv workspace)
 - vscode-web (SSH tunnel + open code-server in mobile browser; optional folder arg)
 - bootstrap-phone (new phone setup helper)
 
@@ -96,10 +110,10 @@ After running bootstrap-phone:
 
 - Long press Termux:Widget -> OP
   - fzf picker over projects in WORKSPACE_ROOT_REMOTE
-  - opens VS Code web + attaches tmux proj_<repo> with CLOUD+CODEX
+  - opens VS Code web + enters canonical `devenv` workspace for that repo
 
 - Long press Termux:Widget -> NP
-  - creates new project and attaches tmux proj_<repo> with CLOUD+CODEX
+  - creates/bootstraps a repo if needed, then enters canonical `devenv` workspace
 
 - Long press Termux:Widget -> VSCODE
   - opens code-server via SSH tunnel at http://127.0.0.1:18080
@@ -114,14 +128,10 @@ Run:
 
 Result:
 - Creates cdelalama/<repo> from template cdelalama/LLM-DocKit if missing
-- Clones into ~/src/projects/<repo> on dev-vm (via BASE_DIR)
-- Attaches/creates tmux session proj_<repo> with CLOUD+CODEX
+- Clones into ~/src/<repo> on dev-vm by default (via BASE_DIR)
+- Opens the canonical `devenv` workspace for that repo on dev-vm
 
 ## Usage
-
-### Open an existing project (picker + VS Code + tmux)
-
-    op
 
 ### Open an existing project (picker + VS Code + tmux)
 
@@ -157,6 +167,9 @@ Run: doctor-phone
 
 ### newproj: command not found on dev-vm
 - Install server tooling on dev-vm from cdelalama/dev-tools so /usr/local/bin/newproj exists.
+
+### devenv: command not found on dev-vm
+- Install the core server tooling on dev-vm from cdelalama/tmux-workspace and run `./server/install.sh` so `~/.local/bin/devenv` exists.
 
 ### VS Code does not open
 - Ensure code-server is running on dev-vm and bound to localhost:

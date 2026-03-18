@@ -15,7 +15,7 @@ fi
 
 # ensure remote workspace root is set (local config, not in git)
 if ! grep -q '^WORKSPACE_ROOT_REMOTE=' "$CFG_FILE"; then
-  echo 'WORKSPACE_ROOT_REMOTE=/home/cdelalama/src/projects' >> "$CFG_FILE"
+  echo 'WORKSPACE_ROOT_REMOTE=/home/cdelalama/src' >> "$CFG_FILE"
   echo "Added WORKSPACE_ROOT_REMOTE to $CFG_FILE"
 fi
 
@@ -72,6 +72,6 @@ echo "C) WireGuard: enable the tunnel if you are not on LAN"
 echo
 echo "USAGE:"
 echo "- Long press Termux:Widget -> OP / NP / VSCODE / TMUX"
-echo "- OP: pick an existing project (fzf), opens VS Code web + tmux agents"
-echo "- NP: create new project (newproj --agents)"
+echo "- OP: pick an existing project (fzf), opens VS Code web + devenv workspace"
+echo "- NP: create/bootstrap a repo, then open its devenv workspace"
 echo "- Debug: doctor-phone"

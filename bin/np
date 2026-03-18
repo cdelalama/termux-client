@@ -1,13 +1,32 @@
-#!/data/data/com.termux/files/usr/bin/bash
+#!/usr/bin/env bash
 set -euo pipefail
-
-CFG_FILE="$HOME/.config/termux-client/config"
-# shellcheck disable=SC1090
-source "$CFG_FILE"
 
 read -r -p "Repo name: " NAME
 NAME="$(echo "$NAME" | tr '[:upper:]' '[:lower:]' | sed -E 's/[^a-z0-9 -]//g; s/[ ]+/-/g; s/^-+|-+$//g')"
 [[ -n "$NAME" ]] || { echo "Empty name"; exit 2; }
+IN_TERMUX=false
 
-# Run on remote via login shell to load PATH (.bashrc)
-exec ssh -t "$HOST" "bash -lc 'newproj $NAME private --agents'"
+if [[ -d "/data/data/com.termux" ]]; then
+  IN_TERMUX=true
+  CFG_FILE="$HOME/.config/termux-client/config"
+  # shellcheck disable=SC1090
+  source "$CFG_FILE"
+fi
+
+run_newproj_then_open() {
+  local repo="$1"
+  local cmd="command -v newproj >/dev/null || { echo 'Error: newproj is not installed on the host'; exit 127; }; command -v devenv >/dev/null || { echo 'Error: devenv is not installed on the host'; exit 127; }; newproj $(printf '%q' "$repo") private && devenv open $(printf '%q' "$repo")"
+  if [[ "$IN_TERMUX" == true ]]; then
+    exec ssh -t "$HOST" "bash -lc $(printf '%q' "$cmd")"
+  else
+    exec bash -lc "$cmd"
+  fi
+}
+
+if [[ "$IN_TERMUX" == true ]]; then
+  # Termux: create/clone the repo remotely, then enter the canonical devenv workspace
+  run_newproj_then_open "$NAME"
+else
+  # dev-vm: create/clone locally, then enter the canonical devenv workspace
+  run_newproj_then_open "$NAME"
+fi

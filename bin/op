@@ -1,19 +1,39 @@
-#!/data/data/com.termux/files/usr/bin/bash
+#!/usr/bin/env bash
 set -euo pipefail
 
-CFG_FILE="$HOME/.config/termux-client/config"
-source "$CFG_FILE"
+WORKSPACE="${WORKSPACE_ROOT_REMOTE:-$HOME/src}"
+IN_TERMUX=false
 
-# Remote workspace root (VM)
-WORKSPACE_ROOT_REMOTE="${WORKSPACE_ROOT_REMOTE:-/home/cdelalama/src}"
+if [[ -d "/data/data/com.termux" ]]; then
+  IN_TERMUX=true
+  CFG_FILE="$HOME/.config/termux-client/config"
+  # shellcheck disable=SC1090
+  source "$CFG_FILE"
+fi
 
-REPOS="$(
-  ssh "$HOST" "bash -lc 'cd \"${WORKSPACE_ROOT_REMOTE}\" && for d in */.git; do echo \${d%/.git}; done 2>/dev/null | sort'" \
-  || true
-)"
+run_workspace_open() {
+  local repo="$1"
+  local cmd="command -v devenv >/dev/null || { echo 'Error: devenv is not installed on the host'; exit 127; }; devenv open $(printf '%q' "$repo")"
+  if [[ "$IN_TERMUX" == true ]]; then
+    exec ssh -t "$HOST" "bash -lc $(printf '%q' "$cmd")"
+  else
+    exec bash -lc "$cmd"
+  fi
+}
+
+if [[ "$IN_TERMUX" == true ]]; then
+  # --- Termux: list repos via SSH ---
+  REPOS="$(
+    ssh "$HOST" "bash -lc 'cd \"${WORKSPACE}\" && for d in */.git; do echo \${d%/.git}; done 2>/dev/null | sort'" \
+    || true
+  )"
+else
+  # --- dev-vm (Termius): list repos locally ---
+  REPOS="$(cd "$WORKSPACE" && for d in */.git; do echo "${d%/.git}"; done 2>/dev/null | sort)"
+fi
 
 if [[ -z "$REPOS" ]]; then
-  echo "No repos found in ${WORKSPACE_ROOT_REMOTE} on remote."
+  echo "No repos found in ${WORKSPACE}."
   echo "Tip: run np to create a new project."
   exit 2
 fi
@@ -21,8 +41,11 @@ fi
 CHOICE="$(printf '%s\n' "$REPOS" | fzf --prompt='Open repo> ' --height=40% --reverse)"
 [[ -n "${CHOICE:-}" ]] || exit 0
 
-# 1) abre VS Code web (no bloquea)
-vscode-web "${WORKSPACE_ROOT_REMOTE}/${CHOICE}" >/dev/null 2>&1 || true
-
-# 2) entra a tmux con agentes (bloquea)
-exec ssh -t "$HOST" "bash -lc 'newproj ${CHOICE} private --agents'"
+if [[ -d "/data/data/com.termux" ]]; then
+  # Termux: open VS Code web + SSH into tmux
+  vscode-web "${WORKSPACE}/${CHOICE}" >/dev/null 2>&1 || true
+  run_workspace_open "$CHOICE"
+else
+  # dev-vm: attach to the canonical devenv workspace
+  run_workspace_open "$CHOICE"
+fi

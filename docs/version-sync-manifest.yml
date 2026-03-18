@@ -1,0 +1,9 @@
+targets:
+- path: VERSION                    marker: version-file
+- path: CHANGELOG.md               marker: changelog
+- path: README.md                  marker: html-comment
+- path: LLM_START_HERE.md          marker: html-comment
+- path: docs/PROJECT_CONTEXT.md    marker: html-comment
+- path: docs/STRUCTURE.md          marker: html-comment
+- path: docs/VERSIONING_RULES.md   marker: html-comment
+- path: docs/llm/HANDOFF.md        marker: html-comment
