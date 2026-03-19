@@ -1,10 +1,16 @@
-## [0.2.0] - 2026-03-18
+## [0.2.1] - 2026-03-19
 
 ### Added
 
 ### Changed
 
+- `op`, `np`, and `install.sh` are now explicitly supported only inside Termux on Android
+- README and working-memory docs now point desktop/local-shell users to plain SSH or the `tmux-workspace` desktop client
+- Removed the leftover duplicated launch heading in the README
+
 ### Fixed
+
+- Closed the remaining product-boundary drift where `termux-client` still behaved like an undocumented second desktop/local-shell client
 
 ## [0.2.0] - 2026-03-18
 

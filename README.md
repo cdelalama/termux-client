@@ -1,4 +1,4 @@
-<!-- doc-version: 0.2.0 -->
+<!-- doc-version: 0.2.1 -->
 # termux-client
 
 Android Termux client wrappers to drive the dev VM.
@@ -6,6 +6,7 @@ Android Termux client wrappers to drive the dev VM.
 ## Current status
 
 This repo is the Android/mobile client layer in the wider `devenv` stack.
+It is supported inside Termux on Android only.
 
 Today it is useful and partially converged on the canonical core model:
 
@@ -15,6 +16,10 @@ Today it is useful and partially converged on the canonical core model:
 - the old `newproj --agents` / `proj_*` mobile flow is no longer the default
 
 The repo is still a client layer. It does not own workspace semantics.
+It is also not the desktop/local-shell client. For non-Android use:
+
+- plain SSH for the general `ssh-*` entry path
+- `tmux-workspace/client/connect.sh` or `connect.ps1` for desktop convenience
 
 ## Architecture / topology
 
@@ -41,7 +46,7 @@ Client tools:
 Notes:
 - `doctor-phone` checks GitHub SSH by matching output because `ssh -T git@github.com` may exit non-zero even when authentication succeeds.
 
-## Install (Android Termux)
+## Install (Android Termux only)
 
 This repo is public, but on the phone we use Git over SSH (no HTTPS tokens):
 
@@ -104,7 +109,6 @@ Optional:
 
 Then run: doctor-phone
 
-### 4) Launch (2 taps)
 ### 4) Launch (2 taps)
 After running bootstrap-phone:
 
@@ -170,6 +174,10 @@ Run: doctor-phone
 
 ### devenv: command not found on dev-vm
 - Install the core server tooling on dev-vm from cdelalama/tmux-workspace and run `./server/install.sh` so `~/.local/bin/devenv` exists.
+
+### I tried to use `op`, `np`, or `install.sh` outside Termux
+- That is no longer a supported mode.
+- Use plain SSH or the desktop client from `tmux-workspace` on non-Android machines.
 
 ### VS Code does not open
 - Ensure code-server is running on dev-vm and bound to localhost:

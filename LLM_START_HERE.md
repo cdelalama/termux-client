@@ -1,4 +1,4 @@
-<!-- doc-version: 0.2.0 -->
+<!-- doc-version: 0.2.1 -->
 # LLM Start Guide - termux-client
 
 ## Read This First
@@ -36,20 +36,14 @@ Recommended order:
 
 Source of truth: `docs/llm/HANDOFF.md`.
 
-- Last Updated: 2026-03-18 - GPT-5 Codex
-- Working on: first functional convergence slice so mobile entry uses the canonical `devenv` interface
-- Status: v0.2.0; `op` and `np` now enter work through `devenv`, while `newproj` remains repo/bootstrap tooling
+- Last Updated: 2026-03-19 - GPT-5 Codex
+- Working on: keep the Android client boundary explicit and prevent local-shell drift
+- Status: v0.2.1; `op` and `np` enter work through `devenv`, and the supported runtime is Termux on Android
 
 ## Current Risk To Keep In Mind
 
-This repo currently has local modified files in:
-
-- `bin/op`
-- `bin/np`
-- `install.sh`
-
-Treat them as active local state. Do not overwrite them casually while adding
-governance or planning convergence work.
+The main risk in this repo is reintroducing a second non-Termux or non-`devenv`
+workflow by accident.
 
 ## Checklist
 

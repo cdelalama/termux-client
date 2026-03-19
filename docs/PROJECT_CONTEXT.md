@@ -1,10 +1,11 @@
-<!-- doc-version: 0.2.0 -->
+<!-- doc-version: 0.2.1 -->
 # Project Context - termux-client
 
 ## Vision
 
 Provide a lightweight Android client layer that makes `dev-vm` usable from a
 phone without turning the phone into a second development environment.
+This product is specifically the Termux/Android client path.
 
 ## Product Role
 
@@ -17,6 +18,11 @@ Its responsibilities are:
 - provide shortcuts for common entry flows
 - optionally expose `code-server` through a tunnel
 - reduce friction when creating or opening work from a phone
+
+It is not responsible for:
+
+- desktop/local-shell convenience outside Termux
+- general SSH entry on laptops or desktops
 
 ## Current Reality
 
@@ -35,7 +41,7 @@ workflow assumptions rather than rebuilding workspace logic here.
 2. Fast project selection from Android
 3. Optional browser-based editing through `code-server`
 4. Minimal setup on a new phone
-5. Future convergence with the canonical `devenv` workspace model
+5. Stable convergence with the canonical `devenv` workspace model without adding a second client contract
 
 ## Key Components
 
@@ -48,18 +54,18 @@ workflow assumptions rather than rebuilding workspace logic here.
 | `bin/bootstrap-phone` | New-phone bootstrap helper |
 | `bin/doctor-phone` | Connectivity and environment diagnostics |
 
-## Current Status (2026-03-18)
+## Current Status (2026-03-19)
 
 - Governance baseline established at `v0.1.0`; first functional convergence slice shipped in `v0.2.0`
+- Runtime-boundary cleanup shipped in `v0.2.1`
 - Existing/open project flows now target the canonical `devenv` workspace interface
-- Local worktree currently contains modified `bin/op`, `bin/np`, and `install.sh`
-- Those local changes appear to support use from both Termux and a normal shell,
-  but that behavior is not yet locked as a documented product contract
+- Supported runtime is now explicitly Termux on Android only
+- `op`, `np`, and `install.sh` now fail clearly outside Termux instead of behaving as an undocumented second client
 
 ## Upcoming Milestones
 
-1. Decide whether dual-mode local/Termux execution is part of the product
-2. Align the remaining Android/bootstrap docs with the converged workflow
+1. Validate the converged Android flow on a real device
+2. Keep Android/bootstrap docs aligned with the supported Termux-only contract
 3. Observe the converged workflow in daily use and remove any leftover legacy assumptions
 
 ## References

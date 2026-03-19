@@ -1,4 +1,4 @@
-<!-- doc-version: 0.2.0 -->
+<!-- doc-version: 0.2.1 -->
 # Repository Structure
 
 ```
@@ -33,5 +33,6 @@ termux-client/
 ## Notes
 
 - Product code lives in `bin/` plus `install.sh`
+- Product code is intended to run inside Termux on Android, not as a general desktop helper
 - Governance and working-memory docs live under `docs/` and `docs/llm/`
 - This repo currently has no automated tests

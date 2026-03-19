@@ -40,3 +40,20 @@
   mobile session model becomes `dev_*`, `bootstrap-phone` now seeds the
   canonical `~/src` remote root, and `newproj` can remain bootstrap-only
   without owning tmux behavior.
+
+## D-004: keep `termux-client` Termux-only
+
+- **Status**: accepted
+- **Decision**: Treat `termux-client` as a Termux/Android client only. Do not
+  support the repo as a generic desktop or local-shell launcher.
+- **Context**: Local modifications had introduced dual-mode behavior where
+  `op`, `np`, and `install.sh` could also run outside Termux. That behavior was
+  not part of the documented product and created renewed ambiguity about repo
+  boundaries.
+- **Rationale**: The stack already has supported non-Android entry paths:
+  plain SSH for the general `ssh-*` menu and `tmux-workspace` desktop clients
+  for convenience. Reusing `termux-client` outside Termux would blur the
+  product boundary again.
+- **Implications**: `op`, `np`, and `install.sh` must fail clearly outside
+  Termux; docs must point desktop users to `tmux-workspace` or plain SSH; future
+  widening of scope would require an explicit new decision and docs update.

@@ -1,36 +1,27 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-WORKSPACE="${WORKSPACE_ROOT_REMOTE:-$HOME/src}"
-IN_TERMUX=false
-
-if [[ -d "/data/data/com.termux" ]]; then
-  IN_TERMUX=true
-  CFG_FILE="$HOME/.config/termux-client/config"
-  # shellcheck disable=SC1090
-  source "$CFG_FILE"
+if [[ ! -d "/data/data/com.termux" ]]; then
+  echo "Error: termux-client/op is supported only inside Termux on Android." >&2
+  echo "Use plain SSH or the tmux-workspace desktop client on non-Termux machines." >&2
+  exit 2
 fi
+
+WORKSPACE="${WORKSPACE_ROOT_REMOTE:-$HOME/src}"
+CFG_FILE="$HOME/.config/termux-client/config"
+# shellcheck disable=SC1090
+source "$CFG_FILE"
 
 run_workspace_open() {
   local repo="$1"
   local cmd="command -v devenv >/dev/null || { echo 'Error: devenv is not installed on the host'; exit 127; }; devenv open $(printf '%q' "$repo")"
-  if [[ "$IN_TERMUX" == true ]]; then
-    exec ssh -t "$HOST" "bash -lc $(printf '%q' "$cmd")"
-  else
-    exec bash -lc "$cmd"
-  fi
+  exec ssh -t "$HOST" "bash -lc $(printf '%q' "$cmd")"
 }
 
-if [[ "$IN_TERMUX" == true ]]; then
-  # --- Termux: list repos via SSH ---
-  REPOS="$(
-    ssh "$HOST" "bash -lc 'cd \"${WORKSPACE}\" && for d in */.git; do echo \${d%/.git}; done 2>/dev/null | sort'" \
-    || true
-  )"
-else
-  # --- dev-vm (Termius): list repos locally ---
-  REPOS="$(cd "$WORKSPACE" && for d in */.git; do echo "${d%/.git}"; done 2>/dev/null | sort)"
-fi
+REPOS="$(
+  ssh "$HOST" "bash -lc 'cd \"${WORKSPACE}\" && for d in */.git; do echo \${d%/.git}; done 2>/dev/null | sort'" \
+  || true
+)"
 
 if [[ -z "$REPOS" ]]; then
   echo "No repos found in ${WORKSPACE}."
@@ -41,11 +32,5 @@ fi
 CHOICE="$(printf '%s\n' "$REPOS" | fzf --prompt='Open repo> ' --height=40% --reverse)"
 [[ -n "${CHOICE:-}" ]] || exit 0
 
-if [[ -d "/data/data/com.termux" ]]; then
-  # Termux: open VS Code web + SSH into tmux
-  vscode-web "${WORKSPACE}/${CHOICE}" >/dev/null 2>&1 || true
-  run_workspace_open "$CHOICE"
-else
-  # dev-vm: attach to the canonical devenv workspace
-  run_workspace_open "$CHOICE"
-fi
+vscode-web "${WORKSPACE}/${CHOICE}" >/dev/null 2>&1 || true
+run_workspace_open "$CHOICE"
